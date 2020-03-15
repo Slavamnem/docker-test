@@ -8,6 +8,6 @@ print_r($pdo);
 
 $a = 5;
 
-$a+= 3;
+$a+= 2;
 
 echo $a;
