@@ -1,0 +1,70 @@
+version: "3"
+services:
+#  nginx:
+#    image: nginx:latest
+#    ports:
+#      - 8081:80
+#    volumes:
+#      - ./docker/dev.nginx.conf:/etc/nginx-conf/nginx.conf
+#      - .:/var/www/html/
+#    links:
+#      - php-fpm
+#
+#  php-fpm:
+#    image: php:7.4.3-fpm
+#    ports:
+#      - 9000
+#    links:
+#      - db
+#    volumes:
+#      - .:/code
+
+  app:
+    build: .
+    ports:
+    - 8081:80
+    volumes:
+    - .:/var/www/html
+    links:
+      - db
+
+  db:
+    image: postgres:12.1
+    restart: always
+    ports:
+      - 54321:5432
+    environment:
+      - POSTGRES_PASSWORD=slava1234
+      - POSTGRES_USER=root
+
+  adminer:
+    image: adminer:4.7.5
+    restart: always
+    ports:
+      - 8082:8080
+    environment:
+      PMA_HOST: db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: slava1234
+
+
+#  db:
+#    image: mysql:5.7.28
+#    restart: always
+#    ports:
+#    - 33061:3306
+#    environment:
+#    - MYSQL_ROOT_PASSWORD=slava1234
+#    - MYSQL_DATABASE=docker_test
+#
+#  phpmyadmin:
+#    depends_on:
+#    - db
+#    image: phpmyadmin/phpmyadmin:4.9.1
+#    restart: always
+#    ports:
+#    - 8082:80
+#    environment:
+#      PMA_HOST: db
+#      MYSQL_USERNAME: root
+#      MYSQL_ROOT_PASSWORD: slava1234
