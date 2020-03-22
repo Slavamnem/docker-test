@@ -1,41 +1,52 @@
 version: "3"
 services:
-#  nginx:
-#    image: nginx:latest
-#    ports:
-#      - 8081:80
-#    volumes:
-#      - ./docker/dev.nginx.conf:/etc/nginx-conf/nginx.conf
-#      - .:/var/www/html/
-#    links:
-#      - php-fpm
-#
-#  php-fpm:
-#    image: php:7.4.3-fpm
-#    ports:
-#      - 9000
-#    links:
-#      - db
-#    volumes:
-#      - .:/code
-
-  app:
-    build: .
+  nginx:
+    image: nginx:latest
     ports:
-    - 8081:80
+      - 8081:80
     volumes:
-    - .:/var/www/html
+      - .:/var/www/html/
+      - ./docker/dev.nginx.conf:/etc/nginx-conf/nginx.conf
+    links:
+      - php-fpm
+    working_dir: ${APP_PATH_CONTAINER}
+    entrypoint: ["nginx","-c","/etc/nginx-conf/nginx.conf"]
+#    environment:
+#    - VIRTUAL_HOST=docker-test.loc
+#    expose:
+#    - 8081
+
+  php-fpm:
+    build: .
+    #php:7.4.3-fpm
+    ports:
+      - 9000
     links:
       - db
+    volumes:
+      - .:/var/www/html/
+    working_dir: ${APP_PATH_CONTAINER}
+    container_name: php-fpm
+#
+#  app:
+#    build: .
+#    ports:
+#    - 8081:80
+#    volumes:
+#    - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+#    links:
+#      - db
 
-  db:
-    image: postgres:12.1
-    restart: always
-    ports:
-      - 54321:5432
-    environment:
-      - POSTGRES_PASSWORD=slava1234
-      - POSTGRES_USER=root
+#  db:
+#    image: postgres:12.1
+#    restart: always
+#    ports:
+#      - 54321:5432
+#    environment:
+#      - POSTGRES_PASSWORD=slava1234
+#      - POSTGRES_USER=root
+#    volumes:
+#      - ${DB_PATH_HOST}:/var/lib/postgresql/data
 
   adminer:
     image: adminer:4.7.5
@@ -47,15 +58,25 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: slava1234
 
+  composer:
+    image: composer:1.6
+    volumes:
+     - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+    working_dir: ${APP_PATH_CONTAINER}
+    command: composer install
 
-#  db:
-#    image: mysql:5.7.28
-#    restart: always
-#    ports:
-#    - 33061:3306
-#    environment:
-#    - MYSQL_ROOT_PASSWORD=slava1234
-#    - MYSQL_DATABASE=docker_test
+
+  db:
+    image: mysql:5.7.28
+    restart: always
+    ports:
+    - 33061:3306
+    environment:
+    - MYSQL_ROOT_PASSWORD=slava1234
+    - MYSQL_DATABASE=docker_test
+    volumes:
+      - ${DB_PATH_HOST}:/var/lib/mysql
+
 #
 #  phpmyadmin:
 #    depends_on:
